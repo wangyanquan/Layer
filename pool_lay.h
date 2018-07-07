@@ -69,6 +69,7 @@ public:
         printf ("\n");
     }
 };
+//找到第n个权值对应输出组数行数与列树
 int find_num(Poollayer& l, int num) {
     return (int)(num / (l.out_row * l.out_col));
 }
@@ -80,6 +81,7 @@ int find_y(Poollayer& l, int num) {
     num -= (l.out_row * l.out_col * find_num(l, num) + l.out_col * find_x(l, num));
     return (int)(num);
 } 
+//池化到全连接的前像传播
 Layer& operator > (Poollayer& l1, Layer& l2) {
     for (int i = 0; i < l2.row; i++) {
         float sum = 0;
@@ -95,6 +97,7 @@ Layer& operator > (Poollayer& l1, Layer& l2) {
     }
     return l2;
 }
+//更新全连接，用到池化与下一层全连接
 void count_layer2(Layer& l2, Layer& l3, Poollayer& l1) {
     for (int i = 0; i < l2.row; i++) {
         float sum = 0;
