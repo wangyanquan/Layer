@@ -304,6 +304,7 @@ Conlayer& operator > (Poollayer& l1, Conlayer& l2) {
     }
     return l2;
 }
+//卷积到池化层中，利用池化放大更新卷积o
 void count_conlayer_pool(Conlayer& l1, Poollayer& l2) {
     int x, y;
     for (int i = 0; i < l2.out_num; i++) {
@@ -333,6 +334,7 @@ void count_conlayer_pool(Conlayer& l1, Poollayer& l2) {
         }
     }
 }  
+//输入到卷积，利用输入更新卷积w b
 void count_wb(Conlayer& l1, Conlayer& l2) {
     for (int i = 0; i < l1.out_num; i++) {
         for (int j = 0; j < l1.w_num; j++) {
@@ -348,7 +350,8 @@ void count_wb(Conlayer& l1, Conlayer& l2) {
             }
         }
     }
-}  
+}
+//池化到卷积，利用池化更新卷积w b
 void count_wb(Conlayer& l1, Poollayer& l2) {
     for (int i = 0; i < l1.out_num; i++) {
         for (int j = 0; j < l1.w_num; j++) {
@@ -384,6 +387,7 @@ void update_wb(Conlayer &l1) {
     }
     memset(l1.b_sum, 0, sizeof(float) * l1.out_num);
 } 
+//池化到全连接，利用全连接更新池化
 void count_pool_layer(Poollayer& l1, Layer& l2) {
     for (int i = 0; i < l1.out_num; i++) {
         for (int j = 0; j < l1.out_row; j++) {
@@ -399,6 +403,7 @@ void count_pool_layer(Poollayer& l1, Layer& l2) {
         }
     }
 }
+//池化到卷积，利用卷积更新池化
 void count_pool_con(Poollayer& l1, Conlayer& l2) {
     for (int i = 0; i < l1.out_num; i++) {
         for (int j = 0; j < l1.out_row; j++) {
@@ -407,12 +412,12 @@ void count_pool_con(Poollayer& l1, Conlayer& l2) {
                 for (int l = 0; l < l2.out_num; l++) {
                     int x = l2.out_row + 2 * l2.w_row - 2;
                     int y = l2.out_col + 2 * l2.w_col - 2;
-                    float **o = alloc(x, y);
+                    float **o = alloc(x, y);  
                     float **w = alloc(l2.w_row, l2.w_col);
-                    set_o(l2.o[l], o, l2.out_row, l2.out_col, l2.w_row, l2.w_col);
-                    set_w(l2.w[l][i], w, l2.w_row, l2.w_col);
+                    set_o(l2.o[l], o, l2.out_row, l2.out_col, l2.w_row, l2.w_col); //o扩展为w
+                    set_w(l2.w[l][i], w, l2.w_row, l2.w_col);//w旋转180
                     sum += juanji(o, w, l2.w_row, l2.w_col, j, k);
-                    del(o, x, y);
+                    del(o, x, y);  //释放内存
                     del(w, l2.w_row, l2.w_col);
                 }
                 l1.o[i][j][k] = sum;
